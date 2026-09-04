@@ -48,3 +48,4 @@
 - 已建立独立本地 Git 仓库并提交源码，首个提交为 `df727d47ff4423c4d50eeeadff4c9618dfe80494`。
 - 目标仓库为 `https://github.com/wqsEric/sessionTask.git`。
 - 2026-09-04 已通过当前项目独立代理配置完成推送，远程 `main` 分支已建立；未执行强制推送，也未覆盖远程历史。
+- 2026-09-04 已发布仅站点所有者可访问的测试版本：`https://gongyou-zhilian.haozhen-2009.chatgpt.site`。正式对外开放和真实用户验收尚未进行。
