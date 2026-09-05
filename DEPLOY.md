@@ -44,5 +44,12 @@ docker compose --env-file .env.server up -d --build
 
 ## 域名与 HTTPS
 
-当前可先使用公网 IP 和 HTTP 验收。域名购买并完成所需备案/解析后，再配置 `gongyou.wqseric.com`、HTTPS 证书，并把 `.env.server` 中的 `COOKIE_SECURE` 改为 `true`。
+域名解析到 ECS 且安全组开放 80、443 后，Caddy 会自动申请并续期 HTTPS 证书。正式域名配置为：
 
+```env
+COOKIE_SECURE=true
+NEXT_PUBLIC_SITE_URL=https://gongyou.wqseric.com
+SITE_DOMAIN=gongyou.wqseric.com
+```
+
+首次从 HTTP 切换时更新服务器上的 `.env.server`，然后重新运行 compose。应用只在 Docker 内网监听 3000，公网请求统一由 Caddy 接收。

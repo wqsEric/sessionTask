@@ -26,12 +26,31 @@ services:
       SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost}
+    expose:
+      - "3000"
+    networks: [private]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-gongyou.wqseric.com}
     ports:
-      - "80:3000"
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - gongyou_caddy_data:/data
+      - gongyou_caddy_config:/config
     networks: [private]
 
 volumes:
   gongyou_postgres:
+  gongyou_caddy_data:
+  gongyou_caddy_config:
 
 networks:
   private:
