@@ -18,11 +18,17 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const user = await getChatGPTUser(); if (!user) return jsonError('请先登录后再发布信息', 401);
+  const isForm = request.headers.get('content-type')?.includes('application/x-www-form-urlencoded') ?? false;
+  const user = await getChatGPTUser();
+  if (!user) return isForm ? Response.redirect(new URL('/login?return_to=%2Fpublish', request.url), 303) : jsonError('请先登录后再发布信息', 401);
   try {
-    const input = parseListingInput(await request.json()); const now = new Date(); const id = crypto.randomUUID();
+    const raw = isForm ? Object.fromEntries(await request.formData()) : await request.json();
+    const input = parseListingInput(raw); const now = new Date(); const id = crypto.randomUUID();
     const { expiryDays, ...values } = input;
     await getDb().insert(listings).values({ id, ownerId: user.userId, ...values, status: 'active', verification: 'self_reported', expiresAt: new Date(now.getTime() + expiryDays * 86400000), createdAt: now, updatedAt: now });
-    return Response.json({ id, status: 'active', verification: 'self_reported' }, { status: 201 });
-  } catch (error) { return jsonError(error instanceof Error ? error.message : '发布失败'); }
+    return isForm ? Response.redirect(new URL('/', request.url), 303) : Response.json({ id, status: 'active', verification: 'self_reported' }, { status: 201 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : '发布失败';
+    return isForm ? Response.redirect(new URL(`/publish?error=${encodeURIComponent(message)}`, request.url), 303) : jsonError(message);
+  }
 }
